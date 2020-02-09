@@ -511,7 +511,7 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		$backgroundTextFontSize = (int)$this->params->get('imagetype_generate_background_text_fontsize', 20);
 		$backgroundTextMargin = (int)$this->params->get('imagetype_generate_background_text_margin', 10);
 		$backgroundTextPadding = (int)$this->params->get('imagetype_generate_background_text_padding', 10);
-		$fontCustom = (int)$this->params->get('imagetype_generate_background_text_font', '');
+		$fontCustom = $this->params->get('imagetype_generate_background_text_font', '');
 		$image = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, JPATH_ROOT . DIRECTORY_SEPARATOR . $backgroundImage);
 
 		$img = imagecreatefromstring(file_get_contents($image));
