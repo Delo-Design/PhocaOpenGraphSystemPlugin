@@ -587,7 +587,7 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		}
 
 		//redirect to image
-		$this->app->redirect($local . DIRECTORY_SEPARATOR . $file . '.jpg', 301);
+		$this->app->redirect($local . DIRECTORY_SEPARATOR . $file . '.jpg', 302);
 	}
 
 
