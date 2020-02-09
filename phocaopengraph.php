@@ -7,14 +7,16 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
+defined( '_JEXEC' ) or die( 'Restricted access' );
+
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
 
-defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class plgSystemPhocaOpenGraph extends CMSPlugin
 {
@@ -60,15 +62,17 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		$absU = 0;
 		// Test if this link is absolute http:// then do not change it
 		$pos1 			= strpos($image, 'http://');
-		if ($pos1 === false) {
-		} else {
+		if ($pos1 === false) {}
+		else
+		{
 			$absU = 1;
 		}
 
 		// Test if this link is absolute https:// then do not change it
 		$pos2 			= strpos($image, 'https://');
-		if ($pos2 === false) {
-		} else {
+		if ($pos2 === false) {}
+		else
+		{
 			$absU = 1;
 		}
 
@@ -79,25 +83,26 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		}
 		else
 		{
-			$linkImg = JURI::base(false).$image;
+			$linkImg = URI::base(false).$image;
 
 			if ($image[0] === '/')
 			{
-				$myURI = new \Joomla\Uri\Uri(JURI::base(false));
+				$myURI = new \Joomla\Uri\Uri(URI::base(false));
 				$myURI->setPath($image);
 				$linkImg = $myURI->toString();
 
 			}
 			else
 			{
-				$linkImg = JURI::base(false).$image;
+				$linkImg = URI::base(false).$image;
 			}
 
 			if ($change_svg_to_png == 1)
 			{
 				$pathInfo 	= pathinfo($linkImg);
-				if (isset($pathInfo['extension']) && $pathInfo['extension'] === 'svg') {
-					$linkImg 	= $pathInfo['dirname'] .'/'. $pathInfo['filename'] . '.png';
+				if (isset($pathInfo['extension']) && $pathInfo['extension'] === 'svg')
+				{
+					$linkImg 	= $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.png';
 				}
 			}
 
@@ -124,16 +129,8 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		$layout = $app->input->get('layout');
 		if ($app->isClient('administrator') && $component === 'com_menus' && $layout === 'edit')
 		{
-
 			Form::addFormPath(__DIR__);
 			$form->loadFile('formoverridemain', true);
-
-			//if((int)$this->params('twitter_enable', 0))
-			//{
-				$form->loadFile('formoverridetweets', true);
-			//}
-
-
 		}
 
 		return true;
@@ -199,7 +196,7 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 	}
 
 	public function onBeforeRender() {
-		$app 	= Factory::getApplication();
+		$app 	= $this->app;
 		$option	= $app->input->get('option');
 		$view	= $app->input->get('view');
 		$format = $app->input->get('format');
@@ -209,14 +206,13 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 			return true;
 		}
 
-
 		if ($app->getName() !== 'site')
 		{
 			return;
 		}
 
 		// Component included
-		$components 		= $this->params->get('components', array());
+		$components 		= $this->params->get('components', []);
 		$component_filter 	= $this->params->get('component_filter', 1);//1 include 0 exclude
 
         $enable_com_content_categories 	= $this->params->get('enable_com_content_categories', 0);
@@ -257,11 +253,11 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		$allowed		= 0;
 		$articleIds 		= $this->params->get('enable_article', '');
 
-		if ($option === 'com_content' && $view === 'categories' && $enable_com_content_categories == 1)
+		if ($option === 'com_content' && $view === 'categories' && $enable_com_content_categories === 1)
 		{
 			$allowed		= 1;
 		}
-		elseif ($option === 'com_content' && $view = 'featured' && $enable_com_content_featured == 1)
+		elseif ($option === 'com_content' && $view === 'featured' && $enable_com_content_featured === 1)
 		{
             $allowed		= 1;
         }
@@ -301,12 +297,39 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 			$type					= $this->params->get('render_type', 1);
 			$this->twitterEnable 	= $this->params->get('twitter_enable', 0);
 			$twitterCard 			= $this->params->get('twitter_card', 'summary_large_image');
+			$imgSet 				= 0; 			// Try to find image in content
+			$menu 					= Factory::getApplication()->getMenu();
+			$menuItem 				= $menu->getActive();
+			$description 			= $document->description;
+
+			if(empty($description))
+			{
+				$description = $this->params->get('default_description', '');
+			}
+
 			$opengraph = [
 				'title' => $document->title,
-				'description' => $document->description,
+				'description' => $description,
 				'url' => $document->base,
-				'type' => $type,
+				'type' => 'website',
 			];
+
+			if($menuItem !== null)
+			{
+				$params = $menuItem->getParams();
+				$opengraph = array_merge($opengraph, [
+					'title' => $params->get('phocaopengraph_title', $opengraph['title']),
+					'description' => $params->get('phocaopengraph_description', $opengraph['description']),
+					'type' =>  $params->get('phocaopengraph_type', $opengraph['type']),
+				]);
+
+				if($params->get('phocaopengraph_image', '') !== '')
+				{
+					$this->renderTag('og:image', $this->setImage($params->get('phocaopengraph_image')), $type);
+					$imgSet = 1;
+				}
+			}
+
 
 			if ($this->twitterEnable == 1)
 			{
@@ -334,14 +357,11 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 				$this->renderTag('og:site_name', $config->get('sitename'), $type);
 			}
 
-			$this->renderTag('og:title', $document->title, $type);
-			$this->renderTag('og:description', $document->description, $type);
-			$this->renderTag('og:url', $document->base, $type);
-			$this->renderTag('og:type', 'website', $type);
+			$this->renderTag('og:title', $opengraph['title'], $type);
+			$this->renderTag('og:description', $opengraph['description'], $type);
+			$this->renderTag('og:url', $opengraph['url'], $type);
+			$this->renderTag('og:type', $opengraph['type'], $type);
 
-
-			// Try to find image in content
-			$imgSet = 0;
 			if ($this->params->get('find_image_content') === 1)
 			{
 
@@ -349,10 +369,12 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 				$docB 	= '';
 				if (isset($buffer['component']) && is_array($buffer))
 				{
-					foreach ($buffer['component'] as $v) {
+					foreach ($buffer['component'] as $v)
+					{
 						if (is_array($v))
 						{
-							foreach($v as $v2) {
+							foreach($v as $v2)
+							{
 								$docB .= (string)$v2;
 							}
 						}
@@ -384,15 +406,17 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 				if($imagetype === 'image')
 				{
 					$this->renderTag('og:image', $this->setImage($this->params->get('image')), $type);
+					$imgSet = 1;
 				}
 
 				if($imagetype === 'generate')
 				{
-					$file = $this->getCacheFile();
+					$file = $this->getCachePath() . DIRECTORY_SEPARATOR . $this->getCacheFile();
 
 					if(file_exists(JPATH_ROOT . DIRECTORY_SEPARATOR . $file))
 					{
 						$this->renderTag('og:image', $this->setImage($file), $type);
+						$imgSet = 1;
 					}
 					else
 					{
@@ -401,23 +425,35 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 						$path = $this->saveDataForCache($fileJSON, array_merge($opengraph));
 						$this->renderTag(
 							'og:image',
-							'/index.php?' . http_build_query([
+							$this->setImage('/index.php?' . http_build_query([
 								'option' => 'com_ajax',
 								'plugin' => 'phocaopengraph',
 								'group' => 'system',
 								'file' => $fileJSON,
 								'format' => 'raw',
-							]),
+							])),
 							$type, false);
+						$imgSet = 1;
 
 					}
 
 				}
 			}
 
+			if($imgSet)
+			{
+				if((int)$this->params->get('imagefixsize', 0))
+				{
+					$this->renderTag('og:image:width', (int)$this->params->get('imagefixsize_width', 1200), $type);
+					$this->renderTag('og:image:height', (int)$this->params->get('imagefixsize_height', 630), $type);
+				}
+
+			}
+
 		}
 
 	}
+
 
 	public function onAjaxPhocaopengraph()
 	{
@@ -428,10 +464,16 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 			$this->showDefaultImage();
 		}
 
-		$path = JPATH_ROOT . DIRECTORY_SEPARATOR . $this->getCachePath(true);
+		$local = $this->getCachePath(true);
+		$path = JPATH_ROOT . DIRECTORY_SEPARATOR . $local;
 		$pathJSON = $path . DIRECTORY_SEPARATOR . 'json';
 		$data = [];
 
+
+		if(file_exists($path . DIRECTORY_SEPARATOR . $file . '.jpg'))
+		{
+			$this->app->redirect($local . DIRECTORY_SEPARATOR . $file . '.jpg');
+		}
 
 		//check json file
 		if(!file_exists($pathJSON . DIRECTORY_SEPARATOR . $file . '.json'))
@@ -442,40 +484,60 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		{
 			$data = json_decode(file_get_contents($pathJSON . DIRECTORY_SEPARATOR . $file . '.json'), JSON_OBJECT_AS_ARRAY);
 
-			if($data === null || count($data) === 0)
+			if($data === null || count($data) === 0 || !isset($data['title']))
 			{
 				$this->showDefaultImage();
 			}
 
 		}
 
+		//check access on folder
+		if(!is_writable($path))
+		{
+			$this->showDefaultImage();
+		}
+
 		//generate image
 		$backgroundImage = $this->params->get('imagetype_generate_background_image');
-		$backgroundTextBackground = $this->params->get('imagetype_generate_background_text_background', '#dddddd');
-		$backgroundTextColor = $this->params->get('imagetype_generate_background_text_color', '#000000');
+		$backgroundTextBackground = $this->params->get('imagetype_generate_background_text_background', '#000000');
+		$backgroundTextColor = $this->params->get('imagetype_generate_background_text_color', '#ffffff');
 		$backgroundTextFontSize = (int)$this->params->get('imagetype_generate_background_text_fontsize', 20);
-		$backgroundTextMargin = (int)$this->params->get('imagetype_generate_background_text_margin', 60);
-		$backgroundTextPadding = (int)$this->params->get('imagetype_generate_background_text_padding', 30);
+		$backgroundTextMargin = (int)$this->params->get('imagetype_generate_background_text_margin', 10);
+		$backgroundTextPadding = (int)$this->params->get('imagetype_generate_background_text_padding', 10);
+		$fontCustom = (int)$this->params->get('imagetype_generate_background_text_font', '');
 		$image = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, JPATH_ROOT . DIRECTORY_SEPARATOR . $backgroundImage);
 
-		$img = imagecreatefromjpeg($image);
+		$img = imagecreatefromstring(file_get_contents($image));
 		$colorForText = $this->hexColorAllocate($img, $backgroundTextColor);
 		$txt = $data['title'];
-		$txt = '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
-		$font = __DIR__ . DIRECTORY_SEPARATOR . '/roboto.ttf';
-
+		$font = JPATH_ROOT . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, ['media', 'plg_system_phocaopengraph', 'fonts', 'roboto.ttf']);
+		if(!empty($fontCustom))
+		{
+			$font = JPATH_ROOT . DIRECTORY_SEPARATOR . $fontCustom;
+			$font = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $font);
+		}
 
 		$width = imagesx($img);
 		$height = imagesy($img);
 
 		$maxWidth = imagesx($img) - (($backgroundTextMargin + $backgroundTextPadding) * 2);
-		$fontSizeWidthChar = $backgroundTextFontSize / 1.5;
+		$fontSizeWidthChar = $backgroundTextFontSize / 2;
 		$countForWrap = (int)((imagesx($img) - (($backgroundTextMargin + $backgroundTextPadding) * 2)) / $fontSizeWidthChar);
-		$dimensions = imagettfbbox($backgroundTextFontSize, 0, $font, $txt);
 		$text = explode("\n", wordwrap($txt, $countForWrap));
-		$text_width = max([$dimensions[2], $dimensions[4]]) - min([$dimensions[0], $dimensions[6]]);
-		$text_height = $dimensions[3] - $dimensions[5];
+		$text_width = 0;
+		$text_height = 0;
 
+		foreach ($text as $line)
+		{
+			$dimensions = imagettfbbox($backgroundTextFontSize, 0, $font, $line);
+			$text_width_current = max([$dimensions[2], $dimensions[4]]) - min([$dimensions[0], $dimensions[6]]);
+			$text_height = $dimensions[3] - $dimensions[5];
+
+			if($text_width < $text_width_current)
+			{
+				$text_width = $text_width_current;
+			}
+		}
 
 		$delta_y = 0;
 		if(count($text) > 1)
@@ -483,45 +545,42 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 			$delta_y = $backgroundTextFontSize * -1;
 			foreach($text as $line)
 			{
-				$delta_y =  $delta_y + ($dimensions[3] + $backgroundTextFontSize);
+				$delta_y += ($dimensions[3] + $backgroundTextFontSize * 1.5);
 			}
-			$delta_y += $delta_y;
+			$delta_y -= $backgroundTextFontSize * 1.5 - $backgroundTextFontSize;
 		}
 
 
 		$centerX = $backgroundTextPadding;
-		$centerY = CEIL(($height - $text_height - $delta_y/2) / 2);
-		$centerY = $centerY < 0 ? 0 : $centerY;
+		$centerY = $height / 2;
 
-
-		$centerRectX2 = $text_width > $maxWidth ? ($dimensions[2] / (count($text) > 1 ? (count($text) - 1) : 1)) : $text_width;
-		$centerRectY1 = $centerY - ($text_height) - $backgroundTextPadding;
-		$centerRectY2 = $centerY;
-		$centerRectY2 += $backgroundTextPadding + $delta_y/2;
+		$centerRectX2 = $text_width > $maxWidth ? $maxWidth : $text_width;
+		$centerRectY1 = $centerY - $delta_y/2 - $backgroundTextPadding;
+		$centerRectY2 = $centerY + $backgroundTextPadding*2 + $delta_y/2;
 		$centerRectX2 += $backgroundTextPadding *2 + $backgroundTextMargin;
 
 		$colorForBackground = $this->hexColorAllocate($img, $backgroundTextBackground);
 		imagefilledrectangle($img, $backgroundTextMargin, $centerRectY1, $centerRectX2, $centerRectY2, $colorForBackground);
 
-		$y = $centerY;
+		$y = $centerRectY1 + $backgroundTextPadding*2;
+
 		$delta_y = 0;
 		foreach($text as $line)
 		{
 			imagettftext($img, $backgroundTextFontSize, 0, $backgroundTextMargin + $backgroundTextPadding, $y + $delta_y, $colorForText, $font, $line);
-			$delta_y =  $delta_y + ($dimensions[3] + $backgroundTextFontSize);
+			$delta_y += ($dimensions[3] + $backgroundTextFontSize * 1.5);
 		}
 
-		header('Content-type: image/jpeg');
-		imagejpeg($img);
-
-		die();
+		imagejpeg($img, $path . DIRECTORY_SEPARATOR . $file . '.jpg');
 
 		//delete cache json
-		//File::delete($pathJSON . DIRECTORY_SEPARATOR . $fileJSON);
-
+		if(file_exists($pathJSON . DIRECTORY_SEPARATOR . $file . '.json'))
+		{
+			File::delete($pathJSON . DIRECTORY_SEPARATOR . $file . '.json');
+		}
 
 		//redirect to image
-
+		$this->app->redirect($local . DIRECTORY_SEPARATOR . $file . '.jpg', 301);
 	}
 
 
@@ -544,13 +603,23 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 
 
 	/**
-	 *
+	 * If an error occurred during generation, then show the default picture
 	 *
 	 * @since version
 	 */
 	private function showDefaultImage()
 	{
-		die();
+		$img = $this->params->get('imagetype_generate_image_for_error', '');
+
+		if(!empty($img))
+		{
+			$this->app->redirect($img, 302);
+		}
+		else
+		{
+			$this->app->redirect('media/plg_system_phocaopengraph/images/default.png', 302);
+		}
+
 	}
 
 
@@ -563,11 +632,15 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 	 */
 	private function getCachePath($checkPath = false)
 	{
-		$path = implode(DIRECTORY_SEPARATOR, ['cache', 'opengraph']);
+		$folder = $this->params->get('imagetype_generate_cache', 'images');
+		$path = implode(DIRECTORY_SEPARATOR, [$folder, 'opengraph']);
 
-		if(!file_exists(JPATH_ROOT . DIRECTORY_SEPARATOR . $path))
+		if($checkPath)
 		{
-			Folder::create(JPATH_ROOT . DIRECTORY_SEPARATOR . $path);
+			if(!file_exists(JPATH_ROOT . DIRECTORY_SEPARATOR . $path))
+			{
+				Folder::create(JPATH_ROOT . DIRECTORY_SEPARATOR . $path);
+			}
 		}
 
 		return $path;
@@ -583,8 +656,13 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 	 */
 	private function getCacheFile($exs = 'jpg')
 	{
-		$file = trim(preg_replace("#\?.*?$#isu", '', $_SERVER['REQUEST_URI']), '/');
+		$file = trim(preg_replace("#\?.*?$#isu", '', $_SERVER['REQUEST_URI']), '/#');
 		$file = str_replace('/', '-', $file);
+
+		if(empty($file))
+		{
+			$file = 'main';
+		}
 
 		if($exs === null)
 		{

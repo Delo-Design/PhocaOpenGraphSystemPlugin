@@ -15,6 +15,7 @@
 		<folder>models</folder>
 		<filename plugin="phocaopengraph">index.html</filename>
 		<filename plugin="phocaopengraph">manifest.xml</filename>
+		<filename plugin="formoverridemain">formoverridemain.xml</filename>
 		<filename plugin="phocaopengraph">phocaopengraph.php</filename>
 	</files>
 
@@ -29,7 +30,12 @@
 			<language tag="en-GB">language/en-GB/en-GB.plg_system_phocaopengraph.sys.ini</language>
 		</languages>
 	</administration>
-	
+
+	<media folder="media" destination="plg_system_phocaopengraph">
+		<folder>fonts</folder>
+		<folder>images</folder>
+	</media>
+
 	<config>
 		<fields name="params" addfieldpath="/plugins/content/phocaopengraph/models/fields">
 			<fieldset name="main" label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_MAIN_OPTIONS">
@@ -43,6 +49,33 @@
 					<option value="1">PLG_SYSTEM_PHOCA_OPEN_GRAPH_NAME</option>
 					<option value="2">PLG_SYSTEM_PHOCA_OPEN_GRAPH_PROPERTY</option>
 				</field>
+
+				<field
+						name="imagefixsize"
+						type="radio"
+						class="btn-group btn-group-yesno"
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGEFIXSIZE_LABEL"
+						size="1"
+						default="0">
+					<option value="0">PLG_SYSTEM_PHOCA_OPEN_GRAPH_NO</option>
+					<option value="1">PLG_SYSTEM_PHOCA_OPEN_GRAPH_YES</option>
+				</field>
+
+				<field
+						name="imagefixsize_width"
+						type="text"
+						default="1200"
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGEFIXSIZE_WIDTH_IMAGE_LABEL"
+						showon="imagefixsize:1"
+				/>
+
+				<field
+						name="imagefixsize_height"
+						type="text"
+						default="630"
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGEFIXSIZE_HEIGHT_IMAGE_LABEL"
+						showon="imagefixsize:1"
+				/>
 
 				<field
 						name="imagetype"
@@ -77,6 +110,15 @@
 				</field>
 
 				<field
+						name="imagetype_generate_image_for_error"
+						type="media"
+						default=""
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGETYPE_GENERATE_IMAGE_FOR_ERROR_LABEL"
+						description=""
+						showon="imagetype:generate"
+				/>
+
+				<field
 						name="imagetype_generate_background_image"
 						type="media"
 						default=""
@@ -99,6 +141,15 @@
 						type="color"
 						default="#fff"
 						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGETYPE_GENERATE_BACKGROUND_TEXT_COLOR_LABEL"
+						description=""
+						showon="imagetype:generate"
+				/>
+
+				<field
+						name="imagetype_generate_background_text_font"
+						type="text"
+						default=""
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGETYPE_GENERATE_BACKGROUND_TEXT_FONT_LABEL"
 						description=""
 						showon="imagetype:generate"
 				/>
@@ -146,6 +197,14 @@
 						default=""
 						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_SITE_NAME_LABEL"
 						description="PLG_SYSTEM_PHOCA_OPEN_GRAPH_SITE_NAME_DESC"
+				/>
+
+				<field
+						name="default_description"
+						type="text"
+						default=""
+						label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_DEFAULT_DESCRIPTION_LABEL"
+						description="PLG_SYSTEM_PHOCA_OPEN_GRAPH_DEFAULT_DESCRIPTION_DESC"
 				/>
 
 				<field

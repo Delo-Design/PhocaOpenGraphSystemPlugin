@@ -3,27 +3,25 @@
     <fields name="params">
         <fieldset name="phocaopengraph">
             <field
-                    name="title"
+                    name="phocaopengraph_title"
                     type="text"
                     default=""
-                    label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_TEXT_LABEL"
-                    description=""
+                    label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_MENUITEM_FORM_TITLE_LABEL"
             />
 
             <field
-                    name="description"
-                    type="text"
+                    name="phocaopengraph_description"
+                    type="textarea"
+                    rows="5"
                     default=""
-                    label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_DESCRIPTION_LABEL"
-                    description=""
+                    label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_MENUITEM_FORM_DESCRIPTION_LABEL"
             />
 
             <field
-                    name="type"
+                    name="phocaopengraph_type"
                     type="list"
-                    default="article"
-                    label="PLG_CONTENT_PHOCA_OPEN_GRAPH_TYPE_LABEL"
-                    description="PLG_CONTENT_PHOCA_OPEN_GRAPH_TYPE_DESC">
+                    default="website"
+                    label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_MENUITEM_FORM_TYPE_LABEL">
                 <option value="activity">activity</option>
                 <option value="sport">sport</option>
                 <option value="bar">bar</option>
@@ -65,12 +63,10 @@
             </field>
 
             <field
-                name="image"
+                name="phocaopengraph_image"
                 type="media"
                 default=""
-                label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGE_LABEL"
-                description="PLG_SYSTEM_PHOCA_OPEN_GRAPH_IMAGE_DESC"
-            />
+                label="PLG_SYSTEM_PHOCA_OPEN_GRAPH_MENUITEM_FORM_IMAGE_LABEL"/>
 
         </fieldset>
     </fields>
