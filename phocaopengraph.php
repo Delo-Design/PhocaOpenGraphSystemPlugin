@@ -157,12 +157,11 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		}
 
 		// Encoded html tags can still be rendered, decode and strip tags first.
-		$value                  = strip_tags(html_entity_decode($value));
-
 
 		if($htmlspecialchars)
 		{
 			$name = htmlspecialchars($name, ENT_COMPAT, 'UTF-8');
+			$value = strip_tags(html_entity_decode($value));
 			$value = htmlspecialchars($value, ENT_COMPAT, 'UTF-8');
 		}
 
