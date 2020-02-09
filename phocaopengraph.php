@@ -213,10 +213,10 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 
 		// Component included
 		$components 		= $this->params->get('components', []);
-		$component_filter 	= $this->params->get('component_filter', 1);//1 include 0 exclude
+		$component_filter 	= $this->params->get('component_filter', 1); //1 include 0 exclude
 
-        $enable_com_content_categories 	= $this->params->get('enable_com_content_categories', 0);
-        $enable_com_content_featured 	= $this->params->get('enable_com_content_featured', 0);
+        $enable_com_content_categories 	= (int)$this->params->get('enable_com_content_categories', 0);
+        $enable_com_content_featured 	= (int)$this->params->get('enable_com_content_featured', 0);
 
 		if (!empty($components))
 		{
@@ -265,8 +265,15 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
         {
 			if ($articleIds !== '')
 			{
-				$articleIdsA =  explode(',', $articleIds);
-				if (!empty($articleIdsA)) {
+				$articleIdsA = explode(',', $articleIds);
+				if (count($articleIdsA) > 0)
+				{
+
+					if(in_array('all', $articleIdsA))
+					{
+						$allowed = 1;
+					}
+
 					$articleId	= $app->input->get('id', 0, 'int');
 					foreach ($articleIdsA as $k => $v)
 					{

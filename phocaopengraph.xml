@@ -22,12 +22,16 @@
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_phocaopengraph.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_phocaopengraph.sys.ini</language>
+		<language tag="ru-RU">language/ru-RU/ru-RU.plg_system_phocaopengraph.ini</language>
+		<language tag="ru-RU">language/ru-RU/ru-RU.plg_system_phocaopengraph.sys.ini</language>
 	</languages>
 
 	<administration>
 		<languages>
 			<language tag="en-GB">language/en-GB/en-GB.plg_system_phocaopengraph.ini</language>
 			<language tag="en-GB">language/en-GB/en-GB.plg_system_phocaopengraph.sys.ini</language>
+			<language tag="ru-RU">language/ru-RU/ru-RU.plg_system_phocaopengraph.ini</language>
+			<language tag="ru-RU">language/ru-RU/ru-RU.plg_system_phocaopengraph.sys.ini</language>
 		</languages>
 	</administration>
 
