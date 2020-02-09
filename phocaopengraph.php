@@ -178,7 +178,7 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 		}
 
 		// Tweet with cards
-		if ($this->twitterEnable == 1)
+		if ($this->twitterEnable === 1)
 		{
 			if ($name === 'og:title')
 			{
@@ -302,7 +302,7 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 			$document 				= Factory::getDocument();
 			$config 				= Factory::getConfig();
 			$type					= $this->params->get('render_type', 1);
-			$this->twitterEnable 	= $this->params->get('twitter_enable', 0);
+			$this->twitterEnable 	= (int)$this->params->get('twitter_enable', 0);
 			$twitterCard 			= $this->params->get('twitter_card', 'summary_large_image');
 			$imgSet 				= 0; 			// Try to find image in content
 			$menu 					= Factory::getApplication()->getMenu();
@@ -701,5 +701,6 @@ class plgSystemPhocaOpenGraph extends CMSPlugin
 
 		file_put_contents($pathFull . DIRECTORY_SEPARATOR . $file . '.json', json_encode($data));
 	}
+
 
 }
