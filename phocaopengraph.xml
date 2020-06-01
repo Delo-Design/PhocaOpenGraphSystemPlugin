@@ -7,14 +7,13 @@
 	<authorUrl>https://www.phoca.cz</authorUrl>
 	<copyright>Jan Pavelka</copyright>
 	<license>GNU/GPL</license>
-	<version>3.0.6</version>
+	<version>4.0</version>
 	<description>PLG_SYSTEM_PHOCAOPENGRAPH_DESCRIPTION</description>
 	<projectName>PhocaOpenGraphSystemPlugin</projectName>
 
 	<files>
 		<folder>models</folder>
 		<filename plugin="phocaopengraph">index.html</filename>
-		<filename plugin="phocaopengraph">manifest.xml</filename>
 		<filename plugin="formoverridemain">formoverridemain.xml</filename>
 		<filename plugin="phocaopengraph">phocaopengraph.php</filename>
 	</files>
