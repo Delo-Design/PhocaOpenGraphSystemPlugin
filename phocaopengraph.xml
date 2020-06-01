@@ -313,7 +313,4 @@
 		</fields>
 	</config>
 
-	<updateservers>
-		<server type="extension" name="PLG_SYSTEM_PHOCAOPENGRAPH" priority="1"><![CDATA[https://raw.githubusercontent.com/PhocaCz/PhocaOpenGraphSystemPlugin/master/manifest.xml]]></server>
-	</updateservers>
 </extension>
